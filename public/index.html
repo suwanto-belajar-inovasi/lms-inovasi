@@ -2606,7 +2606,8 @@ function loadPage(page) {
     $('#view-exam').addClass('hidden'); $('#view-dashboard').removeClass('hidden'); $('body').removeClass('exam-mode');
     $('#page-title').text(page.replace('-', ' ').toUpperCase());
     $('.nav-link').removeClass('active'); $(`a[onclick="loadPage('${page}')"]`).addClass('active');
-    if(window.innerWidth <= 992) { $('#sidebar').removeClass('active'); $('#sidebar-overlay').removeClass('active'); }
+    // Menggunakan matchMedia untuk deteksi ukuran layar yang lebih presisi di semua browser HP    
+    if (window.matchMedia("(max-width: 992px)").matches) {          $('#sidebar').removeClass('active');          $('#sidebar-overlay').removeClass('active');      }
 
     const handleErr = (err) => { showLoad(false); Swal.fire('Error', err.message || 'Koneksi ke server gagal. Cek koneksi Anda.', 'error'); };
 

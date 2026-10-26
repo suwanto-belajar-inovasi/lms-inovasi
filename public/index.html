@@ -85,6 +85,26 @@
 .modal {
     z-index: 1060 !important;
 }
+
+        /* 1. Mengubah warna menu sidebar yang sedang aktif menjadi biru menonjol */
+#sidebar ul li a.active {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+    border-left: 4px solid #ffffff !important;
+    border-radius: 0 25px 25px 0;
+    margin-right: 15px;
+}
+#sidebar ul li a.active i {
+    color: #ffffff !important;
+}
+
+/* 2. Memastikan Modal Preview Soal (Modal ke-2) tampil di atas Editor Soal (Modal ke-1) */
+#modalPreviewQ {
+    z-index: 1080 !important;
+}
+.modal-backdrop:nth-of-type(2) {
+    z-index: 1075 !important;
+}
     </style>
 </head>
 <body>

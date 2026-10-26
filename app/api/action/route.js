@@ -169,7 +169,7 @@ export async function POST(req) {
     // 3. DASHBOARD & DATA UTAMA
     // ==========================================
     if (action === 'getDashboardData') {
-      const [role, userId, , sekolah] = args; 
+      const [role, userId, kelas, sekolah] = args;
       let output = { logo: 'https://lh3.googleusercontent.com/d/1aWHmp6kNKwTYkwEMqVg34_ofiWRkymFe' };
       
       try {
@@ -207,9 +207,21 @@ export async function POST(req) {
 
         const schoolRankQuery = await turso.execute(`SELECT COALESCE(u.Sekolah, u.sekolah) as Sekolah, AVG(COALESCE(r.TotalNilai, r.totalnilai)) as RataRata FROM Results r JOIN Users u ON r.SiswaID = u.ID OR r.siswaid = u.id JOIN Exams e ON r.ExamID = e.ExamID OR r.examid = e.examid WHERE LOWER(COALESCE(e.Mapel, e.mapel)) != 'survey' ${role === 'guru' ? "AND COALESCE(e.ShowStats, e.showstats) IN ('Yes', 'Aktif')" : ""} GROUP BY COALESCE(u.Sekolah, u.sekolah) ORDER BY RataRata DESC`);
         output.schoolRanks = schoolRankQuery.rows;
-      } else if (role === 'siswa') {
+} else if (role === 'siswa') {
         const exams = await turso.execute("SELECT * FROM Exams WHERE LOWER(COALESCE(Mapel, mapel)) != 'survey'");
-        output.availableExams = exams.rows.filter(e => (e.Status||e.status) === 'Aktif');
+        
+        output.availableExams = exams.rows.filter(e => {
+            // Mengizinkan status 'Aktif' atau kosong (karena form bawaan tidak ada status)
+            const statusValid = (e.Status || e.status) === 'Aktif' || !(e.Status || e.status);
+            
+            // Filter otomatis berdasarkan kelas siswa yang login atau 'All'
+            const targetKelas = String(e.TargetKelas || e.targetkelas).toLowerCase();
+            const myKelas = String(kelas).toLowerCase();
+            const kelasValid = targetKelas.includes(myKelas) || targetKelas.includes('all') || targetKelas.includes('semua');
+            
+            return statusValid && kelasValid;
+        });
+        
         const materials = await turso.execute("SELECT * FROM Materials");
         output.materials = materials.rows;
         

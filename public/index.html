@@ -3066,12 +3066,44 @@ function openMapelFolder(mapelName) {
         }
     });
 
-    (gData.availableExams || []).forEach(e => {
-        let mp = e.Mapel || e.mapel; let eJudul = e.Judul || e.judul; let eId = e.ExamID || e.examid;
+(gData.availableExams || []).forEach(e => {
+        let mp = e.Mapel || e.mapel; 
+        let eJudul = e.Judul || e.judul; 
+        let eId = e.ExamID || e.examid;
+        let startStr = e.StartDate || e.startdate;
+        let endStr = e.EndDate || e.enddate;
+        
         if(mp === mapelName) {
-            let btnState = '', btnText = 'Kerjakan';
+            let btnState = '', btnText = 'Kerjakan', infoWaktu = '';
+            let now = new Date();
+            let startT = startStr ? new Date(startStr) : new Date(0);
+            let endT = endStr ? new Date(endStr) : new Date(8640000000000000);
+            
+            // Tambahkan info jadwal ujian di bawah judul
+            if (startStr && endStr) {
+                let formatStart = startStr.replace('T', ' ');
+                let formatEnd = endStr.replace('T', ' ');
+                infoWaktu = `<div class="small text-muted mt-1"><i class="fas fa-clock me-1"></i> ${formatStart} s.d ${formatEnd}</div>`;
+            }
+            
+            // Logika pengecekan waktu aktif
+            if (now < startT) {
+                btnState = 'disabled';
+                btnText = 'Belum Mulai';
+            } else if (now > endT) {
+                btnState = 'disabled';
+                btnText = 'Waktu Habis';
+            }
+
             if (e.IsFinished) { btnState = 'disabled'; btnText = 'Selesai'; }
-            exmHtml += `<div class="d-flex justify-content-between align-items-center bg-white border p-3 rounded-4 shadow-sm mb-2"><div class="fw-bold text-dark"><i class="fas fa-edit text-danger me-2 fs-5"></i> ${eJudul}</div> <button class="btn btn-sm btn-danger rounded-pill px-3" onclick="startExam('${eId}')" ${btnState}>${btnText}</button></div>`;
+            
+            exmHtml += `<div class="d-flex justify-content-between align-items-center bg-white border p-3 rounded-4 shadow-sm mb-2">
+                            <div>
+                                <div class="fw-bold text-dark"><i class="fas fa-edit text-danger me-2 fs-5"></i> ${eJudul}</div>
+                                ${infoWaktu}
+                            </div> 
+                            <button class="btn btn-sm ${btnState === 'disabled' ? 'btn-secondary' : 'btn-danger'} rounded-pill px-3" onclick="startExam('${eId}')" ${btnState}>${btnText}</button>
+                        </div>`;
         }
     });
 
